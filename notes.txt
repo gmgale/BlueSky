@@ -1,4 +1,10 @@
-pro.openweathermap.org/data/2.5/forecast/hourly?lat={lat}&lon={lon}&appid={API key}
+Weather
+
+https://openweathermap.org/
 
 Current weather
+https://openweathermap.org/current
 api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}
+
+
+Images
