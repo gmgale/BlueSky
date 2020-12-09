@@ -16,7 +16,9 @@ func main() {
 	sm := mux.NewRouter()
 
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/currentweather{lat:[0-9]+-[0-9]+}", handlers.CurrentWeather)
+	getRouter.HandleFunc("/currentweather/{city}", handlers.CurrentWeather)
+
+	getRouter.HandleFunc("/", handlers.Home)
 
 	s := http.Server{
 		Addr:         ":9090",
