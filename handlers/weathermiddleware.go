@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,41 +11,48 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// CurrentWeather submits a GET request to the weather platform for data.
-func CurrentWeather(rw http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	city := vars["city"]
+var GlobalWeatherResp weatherResp
 
-	APIkey := apikeys.LocalAPIKeys["weather"]
-	URL := "http://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + APIkey
+func WeatherMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		city := vars["city"]
 
-	resp, err := http.Get(URL)
-	if err != nil {
-		log.Printf("%v", err)
-		http.Error(rw, "Unable to fetch weather data.", http.StatusBadRequest)
-		return
-	}
+		APIkey := apikeys.LocalAPIKeys["weather"]
+		URL := "http://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + APIkey
 
-	text, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		http.Error(rw, "Unable to read response.", http.StatusInternalServerError)
-		return
-	}
+		resp, err := http.Get(URL)
+		if err != nil {
+			log.Printf("%v", err)
+			http.Error(rw, "Unable to fetch weather data.", http.StatusBadRequest)
+			return
+		}
 
-	defer resp.Body.Close()
+		defer resp.Body.Close()
 
-	res := &weatherResp{}
-	err = json.Unmarshal([]byte(text), res)
-	if err != nil {
-		http.Error(rw, "Error unmarshalling JSON.", http.StatusInternalServerError)
-		return
-	}
+		text, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			http.Error(rw, "Unable to read response.", http.StatusInternalServerError)
+			return
+		}
 
-	fmt.Printf("%v\n", res)
-}
+		err = json.Unmarshal([]byte(text), &GlobalWeatherResp)
+		if err != nil {
+			http.Error(rw, "Error unmarshalling weather JSON.", http.StatusInternalServerError)
+			return
+		}
 
-type results struct {
-	responces []weatherResp
+		//	Pretty print the weather to the console
+		var prettyJSON bytes.Buffer
+		err = json.Indent(&prettyJSON, text, "", "\t")
+		if err != nil {
+			log.Println("JSON parse error: ", err)
+			return
+		}
+		log.Println("JSON response: ", string(prettyJSON.Bytes()))
+
+		next.ServeHTTP(rw, r)
+	})
 }
 
 type weatherResp struct {

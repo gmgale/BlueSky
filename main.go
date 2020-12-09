@@ -16,7 +16,8 @@ func main() {
 	sm := mux.NewRouter()
 
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/currentweather/{city}", handlers.CurrentWeather)
+	getRouter.HandleFunc("/currentweather/{city}", handlers.GetImage)
+	getRouter.Use(handlers.WeatherMiddleware)
 
 	getRouter.HandleFunc("/", handlers.Home)
 
