@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -42,15 +42,7 @@ func WeatherMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		//	Pretty print the weather to the console
-		var prettyJSON bytes.Buffer
-		err = json.Indent(&prettyJSON, text, "", "\t")
-		if err != nil {
-			log.Println("JSON parse error: ", err)
-			return
-		}
-		log.Println("JSON response: ", string(prettyJSON.Bytes()))
-
+		fmt.Fprintf(rw, "The weather is %v in %v.\n", GlobalWeatherResp.Weather[0].Main, GlobalWeatherResp.Name)
 		next.ServeHTTP(rw, r)
 	})
 }

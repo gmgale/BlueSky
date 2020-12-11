@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"path"
 
 	"github.com/gmgale/BlueSky/apikeys"
+	download "github.com/gmgale/BlueSky/data"
 )
 
 // CurrentWeather submits a GET request to the weather platform for data.
@@ -18,7 +19,7 @@ func GetImage(rw http.ResponseWriter, r *http.Request) {
 	APIkey := apikeys.LocalAPIKeys["images"]
 	baseURL := "https://api.pexels.com/v1/search?query="
 	perPage := "&per_page=1"
-	URL := baseURL + w.Name + " " + w.Weather[0].Main + perPage
+	URL := baseURL + w.Name + "-" + w.Weather[0].Main + perPage
 
 	log.Println("Making a request to: ", URL)
 	log.Println("Using credentials: ", APIkey)
@@ -31,7 +32,7 @@ func GetImage(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req.Header.Set("Authorization", APIkey)
+	req.Header.Add("Authorization", APIkey)
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("%v", err)
@@ -44,29 +45,23 @@ func GetImage(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, "Unable to read response.", http.StatusInternalServerError)
 		return
 	}
-
-	bodyString := string(bodyBytes)
-	fmt.Println(bodyString)
-
 	defer resp.Body.Close()
 
 	var data imageData
-
 	err = json.Unmarshal([]byte(bodyBytes), &data)
 	if err != nil {
-		log.Println("Error unmarshalling image JSON: ", err)
 		http.Error(rw, "Error unmarshalling image JSON.", http.StatusInternalServerError)
 		return
 	}
 
-	//	Pretty print the image data to the console
-	var prettyJSON bytes.Buffer
-	err = json.Indent(&prettyJSON, bodyBytes, "", "\t")
+	fileURL := data.Photos[0].Src.Small
+
+	fmt.Println(fileURL)
+
+	err = download.DownloadFile(path.Base("image.jpg"), fileURL)
 	if err != nil {
-		log.Println("JSON parse error: ", err)
-		return
+		panic(err)
 	}
-	log.Println("JSON response: ", string(prettyJSON.Bytes()))
 }
 
 type imageData struct {
