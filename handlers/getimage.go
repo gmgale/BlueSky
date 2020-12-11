@@ -6,23 +6,26 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"path"
 
 	"github.com/gmgale/BlueSky/apikeys"
 	download "github.com/gmgale/BlueSky/data"
+	"github.com/gorilla/mux"
 )
 
 // CurrentWeather submits a GET request to the weather platform for data.
 func GetImage(rw http.ResponseWriter, r *http.Request) {
 
-	w := &GlobalWeatherResp
+	vars := mux.Vars(r)
+	imgSize := vars["imgSize"]
+
+	w := GlobalWeatherResp
 	APIkey := apikeys.LocalAPIKeys["images"]
 	baseURL := "https://api.pexels.com/v1/search?query="
 	perPage := "&per_page=1"
 	URL := baseURL + w.Name + "-" + w.Weather[0].Main + perPage
 
+	fmt.Fprintf(rw, "Searching for images of %s %s.\n", w.Name, w.Weather[0].Main)
 	log.Println("Making a request to: ", URL)
-	log.Println("Using credentials: ", APIkey)
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", URL, nil)
@@ -54,14 +57,31 @@ func GetImage(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileURL := data.Photos[0].Src.Small
-
-	fmt.Println(fileURL)
-
-	err = download.DownloadFile(path.Base("image.jpg"), fileURL)
-	if err != nil {
-		panic(err)
+	// This map is used to select the correct URL depending on the
+	// endpoint varible imgSize
+	paths := map[string]string{
+		"original":  data.Photos[0].Src.Original,
+		"large2x":   data.Photos[0].Src.Large2x,
+		"large":     data.Photos[0].Src.Large,
+		"medium":    data.Photos[0].Src.Medium,
+		"small":     data.Photos[0].Src.Small,
+		"portrait":  data.Photos[0].Src.Portrait,
+		"landscape": data.Photos[0].Src.Landscape,
+		"tiny":      data.Photos[0].Src.Tiny,
 	}
+
+	// Extract URL from json
+	fileURL := paths[imgSize]
+
+	fname := ""
+	// Download the image to the root folder
+	fname, err = download.DownloadFile(fileURL)
+	if err != nil {
+		log.Println("Error downloding image.", err)
+		http.Error(rw, "Error downloding image.", http.StatusInternalServerError)
+	}
+
+	fmt.Fprintf(rw, "Image %s has been downloaded to the root folder.\n", fname)
 }
 
 type imageData struct {

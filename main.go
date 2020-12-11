@@ -16,10 +16,8 @@ func main() {
 	sm := mux.NewRouter()
 
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/currentweather/{city}", handlers.GetImage)
+	getRouter.HandleFunc("/currentweather/{city}/{imgSize:[a-z]+}", handlers.GetImage)
 	getRouter.Use(handlers.WeatherMiddleware)
-
-	getRouter.HandleFunc("/", handlers.Home)
 
 	s := http.Server{
 		Addr:         ":9090",

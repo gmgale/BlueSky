@@ -23,7 +23,7 @@ func WeatherMiddleware(next http.Handler) http.Handler {
 
 		resp, err := http.Get(URL)
 		if err != nil {
-			log.Printf("%v", err)
+			log.Println("%v", err)
 			http.Error(rw, "Unable to fetch weather data.", http.StatusBadRequest)
 			return
 		}
