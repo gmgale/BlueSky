@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -13,14 +15,22 @@ import (
 )
 
 func main() {
+	var flagPort string
+	var flagHost string
+	flag.StringVar(&flagPort, "port", "9090", "Port for server setup.")
+	flag.StringVar(&flagHost, "host", "localhost", "Host IP for server setup.")
+	flag.Parse()
+
 	sm := mux.NewRouter()
 
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/currentweather/{city}/{imgSize:[a-z]+}", handlers.GetImage)
 	getRouter.Use(handlers.WeatherMiddleware)
 
+	fmt.Printf("Starting server at %s:%s\n", flagHost, flagPort)
+
 	s := http.Server{
-		Addr:         ":9090",
+		Addr:         flagHost + ":" + flagPort,
 		Handler:      sm,
 		IdleTimeout:  120 * time.Second,
 		ReadTimeout:  1 * time.Second,
