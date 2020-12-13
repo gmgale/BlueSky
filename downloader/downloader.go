@@ -1,4 +1,4 @@
-package download
+package downloader
 
 import (
 	"io"
@@ -27,6 +27,15 @@ func DownloadFile(URL string) (string, error) {
 	fileName = segments[len(segments)-1]
 
 	// Create blank file
+	wd, _ := os.Getwd()
+	if wd != "photos" {
+		err = os.Chdir("photos")
+		if err != nil {
+			// fmt.Printf("RateLimitMiddleware: Error switching to photos directory.\n%v\n", err)
+			// fmt.Printf("Warning: Rate limiting may be disabled.\n")
+		}
+	}
+
 	file, err := os.Create(fileName)
 	if err != nil {
 		return "", err
@@ -38,6 +47,7 @@ func DownloadFile(URL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("Error sending request. %v", err)
@@ -55,5 +65,8 @@ func DownloadFile(URL string) (string, error) {
 	defer file.Close()
 
 	log.Printf("Downloaded image %s with size %d.", fileName, size)
+
+	// Return to the root dir
+	err = os.Chdir("..")
 	return fileName, err
 }

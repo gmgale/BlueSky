@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gmgale/BlueSky/apikeys"
-	download "github.com/gmgale/BlueSky/data"
+	download "github.com/gmgale/BlueSky/downloader"
 	"github.com/gorilla/mux"
 )
 
@@ -83,7 +83,6 @@ func GetImage(rw http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(rw, "Image %s has been downloaded to the root folder.\n", fname)
 	fmt.Fprintf(rw, "Please credit the photographer %s / %s\n", data.Photos[0].Photographer, data.Photos[0].PhotographerURL)
-
 }
 
 type imageData struct {
