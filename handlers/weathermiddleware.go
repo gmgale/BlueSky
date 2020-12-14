@@ -49,7 +49,7 @@ func WeatherMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		fmt.Fprintf(rw, "The weather is %v in %v.\n", GlobalWeatherResp.Weather[0].Main, GlobalWeatherResp.Name)
+		fmt.Fprintf(rw, "The weather is currently %v in %v.\n", GlobalWeatherResp.Weather[0].Main, GlobalWeatherResp.Name)
 		next.ServeHTTP(rw, r)
 	})
 }

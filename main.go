@@ -14,9 +14,17 @@ import (
 	"github.com/gmgale/BlueSky/ratelimit"
 	"github.com/gmgale/BlueSky/testing"
 
-
 	"github.com/gorilla/mux"
 )
+
+func init() {
+	// Allocate storage
+	ratelimit.UserLog = *ratelimit.SessionStorage()
+	dirErr := os.Mkdir("photos", os.ModePerm)
+	if dirErr != nil {
+		fmt.Printf("Error creating photos folder during boot.\n%v\n", dirErr)
+	}
+}
 
 func main() {
 	var flagPort string
@@ -30,12 +38,11 @@ func main() {
 	flag.Parse()
 
 	if ratelimit.GlobalRateLimit == -1 {
-		fmt.Printf("WARNING: Rate-limiting is switched off.\n")
+		fmt.Printf("WARNING: Rate-limiting is DISABLED.\n")
 		fmt.Printf("Use commang line flag '-limit' to set.\n")
+	} else {
+		fmt.Printf("Rate-limiting is ENABLED to %d requests per minute.\n", ratelimit.GlobalRateLimit)
 	}
-
-	// Allocate space for logs
-	ratelimit.UserLog = *ratelimit.SessionStorage()
 
 	sm := mux.NewRouter()
 
@@ -72,14 +79,13 @@ func main() {
 	sig := <-sigChan
 	log.Println("Received terminate, gracefully shutting down.", sig)
 
-	// Clean up when shutting down
-	err := os.RemoveAll("photos")
-	if err != nil {
-		fmt.Printf("Error removing data folder.")
-		fmt.Printf("%v\n", err)
-	}
-
 	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
+
+	// Clean up when shutting down
+	dirErr := os.RemoveAll("photos")
+	if dirErr != nil {
+		fmt.Printf("Error removing photos folder during clean-up.\n%v\n", dirErr)
+	}
 
 	s.Shutdown(tc)
 }
