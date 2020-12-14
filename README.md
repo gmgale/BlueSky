@@ -11,7 +11,7 @@ ___
 
 The current weather endpoint is: 
 ```
-{host:port}/currentweather/{City}/{image Size}
+{host:port}/currentweather/{City}/{image size}
 ```
 The City name should always be capitilized, the size should not.
 
@@ -31,11 +31,11 @@ Example request:
 ```
 
 Will give the plain/text response: "The weather is Cloudy in Lisbon. Searching for images of Lisbon Cloudy.
-Image pexels-photo-5959231.jpeg has been downloaded to the root folder.
+Image pexels-photo-5959231.jpeg has been downloaded to the photos folder.
 Please credit the photographer Soulful Pizza / https://www.pexels.com/@soulful-pizza-2080276.
 
-The image will then be saved into the photos directory (created on boot and deleted on shutdown).
-Please note images can be large in size ~ 10Mb.
+The image will then be saved into the */photos* directory (created on boot and deleted on shutdown).
+Please note images can be up to ~10Mb.
 
 The logs endpoint is:
 ```
