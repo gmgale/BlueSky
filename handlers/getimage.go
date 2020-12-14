@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gmgale/BlueSky/apikeys"
 	download "github.com/gmgale/BlueSky/downloader"
@@ -20,6 +21,8 @@ func GetImage(rw http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(rw, "Testing is enabled. Calls to external APIs have been disabled.")
 		return
 	}
+
+	os.Chdir("photos")
 
 	vars := mux.Vars(r)
 	imgSize := vars["imgSize"]
@@ -77,6 +80,7 @@ func GetImage(rw http.ResponseWriter, r *http.Request) {
 	fileURL := paths[imgSize]
 
 	fname := ""
+
 	// Download the image to the root folder
 	fname, err = download.DownloadFile(fileURL)
 	if err != nil {
@@ -84,8 +88,10 @@ func GetImage(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, "Error downloding image.", http.StatusInternalServerError)
 	}
 
-	fmt.Fprintf(rw, "Image %s has been downloaded to the root folder.\n", fname)
-	fmt.Fprintf(rw, "Please credit the photographer %s / %s\n", data.Photos[0].Photographer, data.Photos[0].PhotographerURL)
+	os.Chdir("..")
+
+	fmt.Fprintf(rw, "Image %s has been downloaded to the photos folder.\n", fname)
+	fmt.Fprintf(rw, "Please credit the photographer:\n%s / %s\n", data.Photos[0].Photographer, data.Photos[0].PhotographerURL)
 }
 
 type imageData struct {

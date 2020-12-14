@@ -9,6 +9,6 @@ import (
 
 func Logs(rw http.ResponseWriter, r *http.Request) {
 
-	fmt.Fprintln(rw, "%v ", ratelimit.UserLog)
+	fmt.Fprintf(rw, "%v \n", ratelimit.UserLog)
 
 }

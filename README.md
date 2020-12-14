@@ -1,17 +1,18 @@
 ﻿﻿![Go logo](https://golang.org/lib/godoc/images/go-logo-blue.svg)
 
-# BlueSky
+# <u>BlueSky</u>
 
 BlueSky is an API service that downloads professionally taken images of a location, depending on the locations current weather.
 
-The current weather endpoint is {host:port}/currentweather/{City}/{image Size}
+This is achieved by leveraging the [Pexels](https://www.pexels.com/) and [OpenWeatherMap](https://openweathermap.org/) API services.
+___
 
-Command line flags can be used:
-* To set the host ("localhost" default). I.e -host 127.0.0.23. 
-* To vary the API port ("9090" default). I.e -port 1234.
-* To enable rate limiting ("-1" / off default). I.e -limit 200. NOT YET FUNCTIONAL.
+<u>Endpoints</u>
 
-City should always be capitilized, the size should not.
+The current weather endpoint is: 
+{host:port}/currentweather/{City}/{image Size}
+
+The City name should always be capitilized, the size should not.
 
 Image size options are:
 * original  
@@ -23,7 +24,7 @@ Image size options are:
 * landscape
 * tiny
 
-Example call:
+Example request:
 
 "http://localhost:9090/currentweather/Lisbon/large"
 
@@ -31,10 +32,32 @@ Will give the plain/text response: "The weather is Cloudy in Lisbon. Searching f
 Image pexels-photo-5959231.jpeg has been downloaded to the root folder.
 Please credit the photographer Soulful Pizza / https://www.pexels.com/@soulful-pizza-2080276.
 
-The image will then be saved into the "/photos" directory. Please note images can be large in size ~ 10Mb.
+The image will then be saved into the photos directory (created on boot and deleted on shutdown).
+Please note images can be large in size ~ 10Mb.
+
+The logs endpoint is:
+{host:port}/logs 
+
+This will display the current memory log of the rate-limiting middleware if enabled.
+___
+
+<u>Command line flags</u>
+
+The optional flags can be used:
+* *-host*: To set the host ("localhost" default). I.e *-host 127.0.0.23*. 
+* *-port*: To vary the API port ("9090" default). I.e *-port 1234*.
+* *-limit:* To enable rate limiting ("-1" / off default). I.e *-limit 200*.
+* *-test*: To enable test mode ("false" default). I.e *-test true*.
+     Test mode disables calls to external APIs to avoid sending too much traffic during development.
+
+Example: 
+
 
 ___
 
+<u>Crediting Photographers</u>
+
+This API is not affiliated with Pexels.
 
  Whenever you are using the service for your API, make sure to show a prominent link to Pexels. You can use a text link (e.g. "Photos provided by Pexels") or a link with their logo.
 
