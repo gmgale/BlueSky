@@ -8,6 +8,8 @@ import (
 	"net/http"
 
 	"github.com/gmgale/BlueSky/apikeys"
+	"github.com/gmgale/BlueSky/testing"
+
 	"github.com/gorilla/mux"
 )
 
@@ -15,6 +17,11 @@ var GlobalWeatherResp weatherResp
 
 func WeatherMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+
+		if testing.TestingFlag == true {
+			return
+		}
+
 		vars := mux.Vars(r)
 		city := vars["city"]
 

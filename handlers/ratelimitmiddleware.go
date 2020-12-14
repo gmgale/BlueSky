@@ -3,8 +3,8 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
+	"time"
 
 	"github.com/gmgale/BlueSky/ratelimit"
 )
@@ -12,58 +12,62 @@ import (
 func RatelimitMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 
-		if ratelimit.GlobalRateLimit == "-1" {
-			// Limit is off
-			fmt.Printf("WARNING: Rate-limiting is switched off.\n")
-			fmt.Printf("Use commang line flag '-limit' to set.\n")
-			return
-		}
-		
-		wd, _ := os.Getwd()
-		if wd != "data" {
-			err := os.Chdir("/data")
-			if err != nil {
-				// fmt.Printf("RateLimitMiddleware: Error switching to data directory.\n%v\n", err)
-				// fmt.Printf("Warning: Rate limiting may be disabled.\n")
-			}
+		if ratelimit.GlobalRateLimit == -1 {
+			// Rate limit is off
+			next.ServeHTTP(rw, r)
 		}
 
+		t := time.Now()
 		a := strings.Split(r.RemoteAddr, ":")
 		addr := a[0]
-		uFile := addr + "_log.tmp"
 
-		newUser := ratelimit.User{
-			RemAddress: addr,
-			ReqRemain:  ratelimit.GlobalRateLimit,
-		}
+		fmt.Printf("1. addr: %s\n", addr)
+		fmt.Println("Logs:", ratelimit.UserLog)
 
-		if fileExists(uFile) {
-			newUser.CheckLog()
-			//open the file
-			//check last log time and reqRemain
-			//if time > 1 min ago; clear all log
-			//if time < min ago:
-			//	if rate < limit:
-			//		write new log and close file
-			//	if rate = limit:
-			// display wait message
+		if val, ok := ratelimit.UserLog[addr]; ok {
+			fmt.Printf("User %s is already in log.\n", addr)
+			rr := val.ReqRemain
+			lr := val.LastReq
+			nt := t.Add(-time.Minute)
+
+			// If its been > than 1 minute, reset the log
+			if nt.Sub(lr) > 1 {
+				fmt.Print("> than 1 minute since last call, resetting log.\n", addr)
+
+				ratelimit.UserLog["addr"] = ratelimit.User{
+					ReqRemain: ratelimit.GlobalRateLimit,
+					LastReq:   time.Now(),
+				}
+				next.ServeHTTP(rw, r)
+			}
+
+			// If time < min ago, check last log time and requests remaining
+			if nt.Sub(lr) < 1 {
+				if rr == 0 {
+					fmt.Fprintf(rw, "Rate limit %d exceeded. Please wait 1 minute.\n", ratelimit.GlobalRateLimit)
+					fmt.Printf("Rate limit %d exceeded. Please wait one minute.\n", ratelimit.GlobalRateLimit)
+					next.ServeHTTP(rw, r)
+				}
+				if rr > 0 {
+					fmt.Printf("You have %d calls remaining.\n", rr)
+					ratelimit.UserLog["addr"] = ratelimit.User{
+						ReqRemain: rr - 1,
+						LastReq:   time.Now(),
+					}
+					next.ServeHTTP(rw, r)
+				}
+			}
 		} else {
-			//create file
+			fmt.Printf("User %s is not in the log. Creating new entry.\n", addr)
 
-			newUser.MakeNewLog()
-			//write log and close file
-			//continue
+			//create file
+			newUser := ratelimit.User{
+				ReqRemain: ratelimit.GlobalRateLimit,
+				LastReq:   time.Now(),
+			}
+			ratelimit.UserLog[addr] = newUser
 		}
+
 		next.ServeHTTP(rw, r)
 	})
-}
-
-// fileExists checks if a file exists and is not a directory before we
-// try using it to prevent further errors.
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
 }
