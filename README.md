@@ -10,8 +10,9 @@ ___
 <u>Endpoints</u>
 
 The current weather endpoint is: 
+```
 {host:port}/currentweather/{City}/{image Size}
-
+```
 The City name should always be capitilized, the size should not.
 
 Image size options are:
@@ -25,8 +26,9 @@ Image size options are:
 * tiny
 
 Example request:
-
-"http://localhost:9090/currentweather/Lisbon/large"
+```
+127.0.0.24:9090/currentweather/Lisbon/large
+```
 
 Will give the plain/text response: "The weather is Cloudy in Lisbon. Searching for images of Lisbon Cloudy.
 Image pexels-photo-5959231.jpeg has been downloaded to the root folder.
@@ -36,23 +38,25 @@ The image will then be saved into the photos directory (created on boot and dele
 Please note images can be large in size ~ 10Mb.
 
 The logs endpoint is:
+```
 {host:port}/logs 
-
+```
 This will display the current memory log of the rate-limiting middleware if enabled.
 ___
 
 <u>Command line flags</u>
 
 The optional flags can be used:
-* *-host*: To set the host ("localhost" default). I.e *-host 127.0.0.23*. 
-* *-port*: To vary the API port ("9090" default). I.e *-port 1234*.
-* *-limit:* To enable rate limiting ("-1" / off default). I.e *-limit 200*.
-* *-test*: To enable test mode ("false" default). I.e *-test true*.
+* *-host*: To set the host ("localhost" default). 
+* *-port*: To vary the API port ("9090" default).
+* *-limit:* To enable rate limiting ("-1" / off default).
+* *-test*: To enable test mode ("false" default).
      Test mode disables calls to external APIs to avoid sending too much traffic during development.
 
-Example: 
-
-
+Powershell example:
+```
+.\main.exe -host 127.0.0.24 -port 8080 -limit 200
+```
 ___
 
 <u>Crediting Photographers</u>
