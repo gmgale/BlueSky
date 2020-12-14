@@ -9,11 +9,17 @@ import (
 
 	"github.com/gmgale/BlueSky/apikeys"
 	download "github.com/gmgale/BlueSky/downloader"
+	"github.com/gmgale/BlueSky/testing"
 	"github.com/gorilla/mux"
 )
 
-// CurrentWeather submits a GET request to the weather platform for data.
+// GetImage submits a GET request to the image platform for data.
 func GetImage(rw http.ResponseWriter, r *http.Request) {
+
+	if testing.TestingFlag == true {
+		fmt.Fprintln(rw, "Testing is enabled. Calls to external APIs have been disabled.")
+		return
+	}
 
 	vars := mux.Vars(r)
 	imgSize := vars["imgSize"]
@@ -23,9 +29,6 @@ func GetImage(rw http.ResponseWriter, r *http.Request) {
 	baseURL := "https://api.pexels.com/v1/search?query="
 	perPage := "&per_page=1"
 	URL := baseURL + w.Name + "-" + w.Weather[0].Main + perPage
-
-	fmt.Fprintf(rw, "Searching for images of %s %s.\n", w.Name, w.Weather[0].Main)
-	log.Println("Making a request to: ", URL)
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", URL, nil)
