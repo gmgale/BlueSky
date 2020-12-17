@@ -82,9 +82,10 @@ func main() {
 	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
 
 	// Clean up when shutting down
+	fmt.Printf("Removing photos folder.\n")
 	dirErr := os.RemoveAll("photos")
 	if dirErr != nil {
-		fmt.Printf("Error removing photos folder during clean-up.\n%v\n", dirErr)
+		fmt.Printf("Error removing photos folder during clean-up. Directory may persist.\n%v\n", dirErr)
 	}
 
 	s.Shutdown(tc)

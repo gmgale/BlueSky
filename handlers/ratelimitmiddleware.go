@@ -9,12 +9,17 @@ import (
 	"github.com/gmgale/BlueSky/ratelimit"
 )
 
+// RatelimitMiddleware is hit first when the endpoint is requsted.
+// It returns immediately if the command line flag of -rate is -1/off.
+// If enabled, a log is kept on the stack of user interactions and
+// limiting is applied accordingly.
 func RatelimitMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 
 		if ratelimit.GlobalRateLimit == -1 {
 			// Rate limit is off
 			next.ServeHTTP(rw, r)
+			return
 		}
 
 		t := time.Now()

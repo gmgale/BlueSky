@@ -15,6 +15,10 @@ import (
 
 var GlobalWeatherResp weatherResp
 
+// WeatherMiddleware is called second, after Ratelimitmiddleware,
+// When the endpoint /currentweather is hit. A request is sent to
+// the weather service to gather data for the requested location.
+// JSON response is then saved in the global variable GlobalWeatherResp.
 func WeatherMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 
@@ -54,6 +58,9 @@ func WeatherMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// weatherResp is the typical full JSON response from 
+// the OpenWeatherMap.org API. We could discard most fields,
+// however, future development of this service may requre them.
 type weatherResp struct {
 	Coord struct {
 		Lon float64 `json:"lon"`

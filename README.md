@@ -51,7 +51,7 @@ The optional flags can be used:
 * *-port*: To vary the API port ("9090" default).
 * *-limit:* To enable rate limiting ("-1" / off default).
 * *-test*: To enable test mode ("false" default).
-     Test mode disables calls to external APIs to avoid sending too much traffic during development.
+     Test mode disables calls to external APIs to avoid superfluous requests during development.
 
 Powershell example:
 ```
