@@ -4,7 +4,7 @@
 
 BlueSky is an API service that downloads professionally taken images of a location, depending on the locations current weather.
 
-This is achieved by leveraging the [Pexels](https://www.pexels.com/) and [OpenWeatherMap](https://openweathermap.org/) API services.
+This is achieved by leveraging the [Pexels](https://www.pexels.com/) and [OpenWeatherMap](https://openweathermap.org/) API services. You will need to provide your own API keys for these services as decribed below.
 ___
 
 <u>Endpoints</u>
@@ -56,6 +56,17 @@ The optional flags can be used:
 Powershell example:
 ```
 .\main.exe -host 127.0.0.24 -port 8080 -limit 200
+```
+___
+
+<u>API Keys</u>
+
+You will need to provide your own API keys for the [Pexels](https://www.pexels.com/) and [OpenWeatherMap](https://openweathermap.org/) API services. These should then be accessable from a map as shown:
+```
+var LocalAPIKeys = map[string]string{
+	"weather": "1a2b3c4d",
+	"images":  "5e6f7g8h",
+}
 ```
 ___
 
