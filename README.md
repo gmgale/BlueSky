@@ -1,4 +1,4 @@
-﻿﻿![Go logo](https://golang.org/lib/godoc/images/go-logo-blue.svg)
+﻿﻿![Go logo](https://go.dev/images/go-logo-white.svg)
 
 # <u>BlueSky</u>
 
